@@ -48,6 +48,7 @@ public:
 protected:
     CURLM* _create_handle();
 
+    std::vector<char> _post_data;
     std::vector<char> _response;
     CURLM* _handle;
     write_callback_func _write_callback;

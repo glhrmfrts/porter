@@ -35,6 +35,7 @@ base_request::~base_request() {
 }
 
 base_request& base_request::operator =(base_request&& other) noexcept {
+    _post_data = std::move(other._post_data);
     _response = std::move(other._response);
     _write_callback = std::move(other._write_callback);
     _handle = other._handle;
@@ -57,8 +58,9 @@ const std::vector<char>& base_request::response() const {
 }
 
 void base_request::set_post_data(const char* data, std::size_t size) {
-    curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, data);
-    curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, size);
+    std::copy(data, data + size, std::back_inserter(_post_data));
+    curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _post_data.data());
+    curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, _post_data.size());
 }
 
 void base_request::set_url(const std::string& url) {
