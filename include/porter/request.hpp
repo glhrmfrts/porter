@@ -8,45 +8,61 @@ typedef void CURLM;
 
 namespace porter {
 
-class request {
+class base_request {
 public:
-    using done_callback_func = std::function<void(request&)>;
+    explicit base_request();
 
-    explicit request();
+    explicit base_request(const std::string& url);
 
-    explicit request(const std::string& url);
-
-    explicit request(const std::string& url, request::done_callback_func func);
-
-    ~request();
+    virtual ~base_request();
 
     /// Copying not allowed
-    request(const request&) = delete;
+    base_request(const base_request&) = delete;
 
-    request(request&& other) noexcept { *this = std::move(other); }
+    base_request(base_request&& other) noexcept { *this = std::move(other); }
 
     /// Copying not allowed
-    request& operator =(const request&) = delete;
+    base_request& operator =(const base_request&) = delete;
 
-    request& operator =(request&& other) noexcept;
+    base_request& operator =(base_request&& other) noexcept;
 
     CURLM* curl_handle();
-
-    done_callback_func done_callback();
-
-    void set_done_callback(done_callback_func func);
 
     void set_post_data(const char* data, std::size_t size);
 
     void set_url(const std::string& url);
 
-    int perform();
-
     long status_code();
 
-private:
+protected:
     CURLM* _handle;
+};
+
+class async_request : public base_request {
+public:
+    using done_callback_func = std::function<void(async_request&)>;
+
+    explicit async_request();
+
+    explicit async_request(const std::string& url, done_callback_func func);
+
+    async_request(async_request&& other) noexcept { *this = std::move(other); }
+
+    async_request& operator =(async_request&& other) noexcept;
+
+    done_callback_func done_callback();
+
+    void set_done_callback(done_callback_func func);
+
+private:
     done_callback_func _done_callback;
+};
+
+class sync_request : public base_request {
+public:
+    using base_request::base_request;
+
+    int perform();
 };
 
 }

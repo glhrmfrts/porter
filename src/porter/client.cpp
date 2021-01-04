@@ -18,17 +18,17 @@ client::~client() {
     curl_multi_cleanup(_multi_handle);
 }
 
-void client::add_request(request&& req) {
-    std::lock_guard<std::mutex> lock{ _requests_mutex };
+void client::add_request(async_request&& req) {
+    std::lock_guard<std::mutex> lock{ _async_requests_mutex };
     curl_multi_add_handle(_multi_handle, req.curl_handle());
 
-    auto ptr = new request(std::move(req));
-    _requests.push_back(std::unique_ptr<request>{ ptr });
+    auto ptr = new async_request{ std::move(req) };
+    _async_requests.push_back(std::unique_ptr<async_request>{ ptr });
 }
 
 std::size_t client::num_requests() {
-    std::lock_guard<std::mutex> lock{ _requests_mutex };
-    return _requests.size();
+    std::lock_guard<std::mutex> lock{ _async_requests_mutex };
+    return _async_requests.size();
 }
 
 void client::_client_loop() {
@@ -115,19 +115,22 @@ void client::_client_loop() {
         /* See how the transfers went */ 
         while((msg = curl_multi_info_read(mhandle, &msgs_left))) {
             if(msg->msg == CURLMSG_DONE) {
-                std::unique_ptr<request> req;
+                std::unique_ptr<async_request> req;
             
                 /* Find out which handle this message is about */
                 {
-                    std::lock_guard<std::mutex> lock{ _requests_mutex };
-                    auto remove_it = std::remove_if(_requests.begin(), _requests.end(), [msg, &req](std::unique_ptr<request>& r) {
+                    std::lock_guard<std::mutex> lock{ _async_requests_mutex };
+                    auto remove_it = std::remove_if(_async_requests.begin(), _async_requests.end(), [msg, &req](std::unique_ptr<async_request>& r) {
                         if (r->curl_handle() == msg->easy_handle) {
                             req = std::move(r);
                             return true;
                         }
                         return false;
                     });
-                    _requests.erase(remove_it, _requests.end());
+                    _async_requests.erase(remove_it, _async_requests.end());
+                    if (req) {
+                        curl_multi_remove_handle(mhandle, req->curl_handle());
+                    }
                 }
 
                 if (req && bool(req->done_callback())) {

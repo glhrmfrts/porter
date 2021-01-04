@@ -28,17 +28,17 @@ public:
     /// Moving not allowed, use ptrs
     client& operator =(client&&) = delete;
 
-    /// Adds a new request to this client
-    void add_request(request&& req);
+    /// Adds a new async_request to this client
+    void add_request(async_request&& req);
 
-    /// Returns the number of current requests
+    /// Returns the number of current async_requests
     std::size_t num_requests();
 
 private:
     void _client_loop();
 
-    std::list<std::unique_ptr<request>> _requests;
-    std::mutex _requests_mutex;
+    std::list<std::unique_ptr<async_request>> _async_requests;
+    std::mutex _async_requests_mutex;
     std::thread _client_thread;
     std::atomic_bool _running;
     void* _multi_handle;
