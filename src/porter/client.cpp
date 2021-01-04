@@ -43,7 +43,7 @@ void client::_client_loop() {
     /* we start some action by calling perform right away */ 
     curl_multi_perform(mhandle, &still_running);
 
-    while (_running) {
+    while (_running || still_running) {
         struct timeval timeout;
         int rc; /* select() return code */ 
         CURLMcode mc; /* curl_multi_fdset() return code */ 
