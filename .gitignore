@@ -1,0 +1,12 @@
+build
+bin
+credentials
+debdist
+*.exe
+*.cmake
+CMakeCache.txt
+CMakeFiles
+*~
+app.core
+.#*
+ecg_test_files

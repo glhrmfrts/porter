@@ -1,0 +1,1 @@
+cmake . -G "Visual Studio 16 2019" -B build -A Win32 -DPORTER_BUILD_TESTS=ON
