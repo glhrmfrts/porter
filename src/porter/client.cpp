@@ -130,11 +130,12 @@ void client::_client_loop() {
                     _async_requests.erase(remove_it, _async_requests.end());
                     if (req) {
                         curl_multi_remove_handle(mhandle, req->curl_handle());
+                        req->_result_code = msg->data.result;
                     }
                 }
 
                 if (req && bool(req->done_callback())) {
-                    req->done_callback()(*req);
+                    req->done_callback()(*req, req->_result_code);
                 }
             }
         }

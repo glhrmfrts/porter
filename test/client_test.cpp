@@ -9,9 +9,11 @@ using namespace porter;
 
 static std::atomic_int a = 0;
 
-void request_done(async_request& req) {
+void request_done(const async_request& req, int result) {
     a += 1;
+    std::cout << result << std::endl;
     std::cout << req.status_code() << std::endl;
+    std::cout << std::string{ req.response().data(), req.response().size() } << std::endl;
 }
 
 int main(int argc, char** argv) {

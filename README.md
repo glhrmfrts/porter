@@ -20,7 +20,7 @@ Asynchronous client (curl_multi):
 ```c++
 #include <porter/porter.hpp>
 
-void request_done(porter::async_request& req) {
+void request_done(const porter::async_request& req, int result_code) {
     std::cout << req.status_code() << std::endl;
 }
 

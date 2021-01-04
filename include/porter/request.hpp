@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <vector>
 
 typedef void CURLM;
 
@@ -10,6 +11,8 @@ namespace porter {
 
 class base_request {
 public:
+    using write_callback_func = std::function<void(const char*, std::size_t)>;
+
     explicit base_request();
 
     explicit base_request(const std::string& url);
@@ -28,19 +31,31 @@ public:
 
     CURLM* curl_handle();
 
+    std::vector<char>& response();
+
+    const std::vector<char>& response() const;
+
     void set_post_data(const char* data, std::size_t size);
 
     void set_url(const std::string& url);
 
-    long status_code();
+    void set_write_callback(write_callback_func func);
+
+    long status_code() const;
+
+    write_callback_func write_callback() const;
 
 protected:
+    CURLM* _create_handle();
+
+    std::vector<char> _response;
     CURLM* _handle;
+    write_callback_func _write_callback;
 };
 
 class async_request : public base_request {
 public:
-    using done_callback_func = std::function<void(async_request&)>;
+    using done_callback_func = std::function<void(const async_request&, int)>;
 
     explicit async_request();
 
@@ -55,7 +70,10 @@ public:
     void set_done_callback(done_callback_func func);
 
 private:
+    friend class client;
+
     done_callback_func _done_callback;
+    int _result_code;
 };
 
 class sync_request : public base_request {
