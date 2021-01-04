@@ -27,6 +27,7 @@ void client::add_request(request&& req) {
 }
 
 std::size_t client::num_requests() {
+    std::lock_guard<std::mutex> lock{ _requests_mutex };
     return _requests.size();
 }
 
