@@ -67,6 +67,10 @@ void base_request::set_url(const std::string& url) {
     curl_easy_setopt(_handle, CURLOPT_URL, url.data());
 }
 
+void base_request::set_ssl_verify_peer(bool verify) {
+    curl_easy_setopt(_handle, CURLOPT_SSL_VERIFYPEER, verify);
+}
+
 long base_request::status_code() const {
     long http_code = 0;
     curl_easy_getinfo(_handle, CURLINFO_RESPONSE_CODE, &http_code);

@@ -39,6 +39,8 @@ public:
 
     void set_url(const std::string& url);
 
+    void set_ssl_verify_peer(bool verify);
+
     void set_write_callback(write_callback_func func);
 
     long status_code() const;
