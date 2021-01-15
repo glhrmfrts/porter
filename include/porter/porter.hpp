@@ -5,4 +5,10 @@
 #include "porter/global_guard.hpp"
 #include "porter/request.hpp"
 
+namespace porter {
+
+std::string str_error(int code);
+
+}
+
 #endif
