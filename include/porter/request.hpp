@@ -4,8 +4,11 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include "porter/method.hpp"
 
 typedef void CURLM;
+
+struct curl_slist;
 
 namespace porter {
 
@@ -29,13 +32,17 @@ public:
 
     base_request& operator =(base_request&& other) noexcept;
 
+    void add_header(const std::string& name, const std::string& value);
+
     CURLM* curl_handle();
 
     std::vector<char>& response();
 
     const std::vector<char>& response() const;
 
-    void set_post_data(const char* data, std::size_t size);
+    void set_method(method m);
+
+    void set_data(const char* data, std::size_t size);
 
     void set_url(const std::string& url);
 
@@ -48,12 +55,18 @@ public:
     write_callback_func write_callback() const;
 
 protected:
+    friend class client;
+
     CURLM* _create_handle();
+
+    void _prepare();
 
     std::vector<char> _post_data;
     std::vector<char> _response;
     CURLM* _handle;
     write_callback_func _write_callback;
+    struct curl_slist *_headers = NULL;
+    bool _prepared = false;
 };
 
 class async_request : public base_request {

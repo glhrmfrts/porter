@@ -31,6 +31,7 @@ base_request::base_request(const std::string& url) {
 }
 
 base_request::~base_request() {
+    curl_slist_free_all(_headers);
     if (_handle) curl_easy_cleanup(_handle);
 }
 
@@ -39,10 +40,19 @@ base_request& base_request::operator =(base_request&& other) noexcept {
     _response = std::move(other._response);
     _write_callback = std::move(other._write_callback);
     _handle = other._handle;
+    _headers = other._headers;
+    _prepared = other._prepared;
     other._handle = NULL;
+    other._headers = NULL;
     curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, raw_write_callback);
     curl_easy_setopt(_handle, CURLOPT_WRITEDATA, static_cast<void*>(this));
     return *this;
+}
+
+void base_request::add_header(const std::string& name, const std::string& value) {
+    char header[512];
+    snprintf(header, sizeof(header), "%s: %s", name.c_str(), value.c_str());
+    _headers = curl_slist_append(_headers, header);
 }
 
 CURLM* base_request::curl_handle() {
@@ -57,7 +67,11 @@ const std::vector<char>& base_request::response() const {
     return _response;
 }
 
-void base_request::set_post_data(const char* data, std::size_t size) {
+void base_request::set_method(method m) {
+    curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, method_name(m));
+}
+
+void base_request::set_data(const char* data, std::size_t size) {
     std::copy(data, data + size, std::back_inserter(_post_data));
     curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _post_data.data());
     curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, _post_data.size());
@@ -88,6 +102,13 @@ CURLM* base_request::_create_handle() {
     return handle;
 }
 
+void base_request::_prepare() {
+    if (_prepared) return;
+    
+    curl_easy_setopt(_handle, CURLOPT_HTTPHEADER, _headers);
+    _prepared = true;
+}
+
 
 async_request::async_request() : base_request{}, _result_code{ 0 } {
 }
@@ -112,6 +133,7 @@ void async_request::set_done_callback(done_callback_func func) {
 
 
 int sync_request::perform() {
+    _prepare();
     return curl_easy_perform(_handle);
 }
 

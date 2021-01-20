@@ -23,6 +23,7 @@ void client::add_request(async_request&& req) {
     curl_multi_add_handle(_multi_handle, req.curl_handle());
 
     auto ptr = new async_request{ std::move(req) };
+    ptr->_prepare();
     _async_requests.push_back(std::unique_ptr<async_request>{ ptr });
 }
 
