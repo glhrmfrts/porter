@@ -50,9 +50,11 @@ base_request& base_request::operator =(base_request&& other) noexcept {
 }
 
 void base_request::add_header(const std::string& name, const std::string& value) {
-    char header[512];
-    snprintf(header, sizeof(header), "%s: %s", name.c_str(), value.c_str());
+    const size_t len = name.size() + value.size() + 10;
+    char* header = (char*)malloc(len);
+    snprintf(header, len, "%s: %s", name.c_str(), value.c_str());
     _headers = curl_slist_append(_headers, header);
+    free(header);
 }
 
 CURLM* base_request::curl_handle() {
