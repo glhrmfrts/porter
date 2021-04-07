@@ -111,7 +111,7 @@ void client::_client_loop() {
         default: /* action */ 
             curl_multi_perform(mhandle, &still_running);
             break;
-        }
+        }        
 
         /* See how the transfers went */ 
         while((msg = curl_multi_info_read(mhandle, &msgs_left))) {

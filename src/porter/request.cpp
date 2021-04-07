@@ -87,6 +87,11 @@ void base_request::set_ssl_verify_peer(bool verify) {
     curl_easy_setopt(_handle, CURLOPT_SSL_VERIFYPEER, verify);
 }
 
+void base_request::set_timeout(const std::chrono::milliseconds &ms) {
+    curl_easy_setopt(_handle, CURLOPT_TIMEOUT_MS, (long)ms.count());
+    curl_easy_setopt(_handle, CURLOPT_NOSIGNAL, 1);
+}
+
 long base_request::status_code() const {
     long http_code = 0;
     curl_easy_getinfo(_handle, CURLINFO_RESPONSE_CODE, &http_code);

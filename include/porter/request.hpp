@@ -1,6 +1,7 @@
 #ifndef porter_request_hpp
 #define porter_request_hpp
 
+#include <chrono>
 #include <functional>
 #include <string>
 #include <vector>
@@ -47,6 +48,8 @@ public:
     void set_url(const std::string& url);
 
     void set_ssl_verify_peer(bool verify);
+
+    void set_timeout(const std::chrono::milliseconds& ms);
 
     void set_write_callback(write_callback_func func);
 
