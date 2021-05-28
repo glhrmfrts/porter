@@ -3,7 +3,7 @@ set(TARGET_NAME porter)
 file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES ${PROJECT_SOURCE_DIR}/include/*.h)
 
-add_library(${TARGET_NAME} ${SOURCE_FILES} ${HEADER_FILES})
+add_library(${TARGET_NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 
