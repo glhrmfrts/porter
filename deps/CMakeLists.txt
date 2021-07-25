@@ -10,4 +10,4 @@ if (WIN32)
     set(USE_WINDOWS_SSPI ON)
 endif (WIN32)
 
-add_subdirectory(curl)
+#add_subdirectory(curl)

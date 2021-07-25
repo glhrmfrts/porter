@@ -14,5 +14,5 @@ if (WIN32)
 endif (WIN32)
 
 if (UNIX)
-    target_link_libraries(${TARGET_NAME} PRIVATE libcurl)
+    target_link_libraries(${TARGET_NAME} PRIVATE curl expat util)
 endif (UNIX)
